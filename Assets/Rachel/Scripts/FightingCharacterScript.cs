@@ -5,14 +5,14 @@ using UnityEngine.InputSystem;
 
 public class FightingCharacterScript : MonoBehaviour
 {
+
+    public int id;
+
     //public KeyCode attackKeyCode;
     public GameObject characterObj;
     Animator controllerAnim;
     public GameObject hitbox;
     public GameObject pow;
-
-    ControlMaster controlMaster; //Our input script we created
-
     public bool inputsDisabled;
 
     //public bool flipX = true;
@@ -29,23 +29,25 @@ public class FightingCharacterScript : MonoBehaviour
         inputsDisabled = false;
         horizontal = 0f;
         controllerAnim = characterObj.GetComponent<Animator>();
-        controlMaster = new ControlMaster(); //Assign and enable our class
-        //controlMaster.BaseControls.Join.performed += JoinPerformed;
-        
-        // Create functions for all the inputs
-        controlMaster.BaseControls.Jump.performed += Jump;
-        controlMaster.BaseControls.Light_Attack.performed += Light_Attack;
-        controlMaster.BaseControls.Heavy_Attack.performed += Heavy_Attack;
-        controlMaster.BaseControls.Horizontal.performed += Walk;
-        // enable inputs
-        controlMaster.Enable();
+
+        InputManager.current.players[id].onJump += Jump;
+        InputManager.current.players[id].onLightAttack += Light_Attack;
+        InputManager.current.players[id].onHeavyAttack += Heavy_Attack;
+    }
+
+    private void OnDisable()
+    {
+        InputManager.current.players[id].onJump -= Jump;
+        InputManager.current.players[id].onLightAttack -= Light_Attack;
+        InputManager.current.players[id].onHeavyAttack -= Heavy_Attack;
     }
 
     // Update is called once per frame
     void Update()
     {
         // horizontal value when using keyboard input
-        horizontal = Input.GetAxisRaw("Horizontal");
+        //horizontal = Input.GetAxisRaw("Horizontal");
+        horizontal = InputManager.current.players[id].horizontal;
 
         // horizontal movement
         rigidBody.velocity = new Vector3(horizontal * movementSpeed, rigidBody.velocity.y);
@@ -81,16 +83,21 @@ public class FightingCharacterScript : MonoBehaviour
             controllerAnim.SetBool("Walking", true);
         }
         // enable input & disable hitbox when attack animation has ended
-        if (controllerAnim.GetCurrentAnimatorStateInfo(0).IsName("Light"))
-        {
-            inputsDisabled = false;
-            hitbox.SetActive(false);
-            pow.SetActive(false);
-        }
+        //if (controllerAnim.GetCurrentAnimatorStateInfo(0).IsName("Light"))
+        //{
+        //    EndAnim();
+        //}
+    }
+
+    public void EndAnim()
+    {
+        inputsDisabled = false;
+        hitbox.SetActive(false);
+        pow.SetActive(false);
     }
 
     // when jump button is pressed on controller (gamepad south)
-    private void Jump(InputAction.CallbackContext obj)
+    private void Jump()
     {
         if (!inputsDisabled)
         {
@@ -111,7 +118,7 @@ public class FightingCharacterScript : MonoBehaviour
     }
 
     // when light attack button is pressed on controller (gamepad west)
-    private void Light_Attack(InputAction.CallbackContext obj)
+    private void Light_Attack()
     {
         if (!inputsDisabled)
         {
@@ -126,23 +133,11 @@ public class FightingCharacterScript : MonoBehaviour
         }
     }
 
-    private void Heavy_Attack(InputAction.CallbackContext obj)
+    private void Heavy_Attack()
     {
         if (!inputsDisabled)
         {
             controllerAnim.SetTrigger("Punching");
-        }
-    }
-
-    private void Walk(InputAction.CallbackContext obj)
-    {   
-        if (!inputsDisabled)
-        {
-            horizontal = controlMaster.BaseControls.Horizontal.ReadValue<float>();
-        }
-        else
-        {
-            horizontal = 0f;
         }
     }
 
