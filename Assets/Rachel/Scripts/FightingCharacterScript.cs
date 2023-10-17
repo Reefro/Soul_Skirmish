@@ -2,37 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 public class FightingCharacterScript : MonoBehaviour
 {
 
     public int id;
 
+    //public KeyCode attackKeyCode;
     public GameObject characterObj;
-    Animator anim;
+    Animator controllerAnim;
     public GameObject hitbox;
     public GameObject pow;
     public bool inputsDisabled;
 
-    public float HP; // health points
-    public int BP; // battle points
-    public int SP; // soul points
-    public float maxHP;
+    //public bool flipX = true;
+    //public bool flipY;
+    //public bool flipZ;
 
-    public Image healthBar;
-
-    public GameObject lastAttacker; // stores last attacker, so we know who got the kill upon death
-
-    public float movementSpeed; //player movement speed
-    public float jumpHeight; //player jump height
-    public float horizontal; //horizontal variable, used to check whether the player's input is positive or negative for movement
-    public float rotation; //rotation variable, for rotating the character model on the y axis
-    public bool hasDblJump = true;
-
-    [SerializeField] private Rigidbody2D rigidBody; //referencing the rigid body on my character model, in order to access it in c#
-    [SerializeField] private Transform groundCheck; //referencing the groundCheck emptyObject on my character model in order to access it in c#
-    [SerializeField] private LayerMask groundLayer; //referencing the ground Layer in the layers in order to access it in c#
+    //public Mesh mesh;
 
     // Start is called before the first frame update
     void Start()
@@ -41,18 +28,12 @@ public class FightingCharacterScript : MonoBehaviour
         pow.SetActive(false);
         inputsDisabled = false;
         horizontal = 0f;
-        anim = characterObj.GetComponent<Animator>();
-        lastAttacker = null;
+        controllerAnim = characterObj.GetComponent<Animator>();
 
         InputManager.current.players[id].onJump += Jump;
         InputManager.current.players[id].onLightAttack += Light_Attack;
         InputManager.current.players[id].onHeavyAttack += Heavy_Attack;
-
-        HP = 100; // health points
-        BP = 0; // battle points
-        SP = 0; // soul points
-        maxHP = 100;
-}
+    }
 
     private void OnDisable()
     {
@@ -66,13 +47,12 @@ public class FightingCharacterScript : MonoBehaviour
     {
         // horizontal value when using keyboard input
         //horizontal = Input.GetAxisRaw("Horizontal");
-        if (inputsDisabled == false)
-        {
-            horizontal = InputManager.current.players[id].horizontal;
-            rigidBody.velocity = new Vector3(horizontal * movementSpeed, rigidBody.velocity.y);
-        }
+        horizontal = InputManager.current.players[id].horizontal;
 
-        //// jumping with keyboard input
+        // horizontal movement
+        rigidBody.velocity = new Vector3(horizontal * movementSpeed, rigidBody.velocity.y);
+
+        //// jumpiing with keyboard input
         //if (Input.GetButtonDown("Jump") && OnGround())
         //{
         //    rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpHeight);
@@ -95,26 +75,25 @@ public class FightingCharacterScript : MonoBehaviour
         // stop walking when no horizontal movement or off ground
         if (horizontal == 0 || !OnGround())
         {
-            anim.SetBool("Walking", false);
+            controllerAnim.SetBool("Walking", false);
         }
         // set walking when horizontal movement and on ground
         else if (horizontal != 0 && OnGround())
         {
-            anim.SetBool("Walking", true);
+            controllerAnim.SetBool("Walking", true);
         }
-        
-        healthBar.fillAmount = (HP/maxHP) / 2f; // half full circle = full health bar
+        // enable input & disable hitbox when attack animation has ended
+        //if (controllerAnim.GetCurrentAnimatorStateInfo(0).IsName("Light"))
+        //{
+        //    EndAnim();
+        //}
     }
 
-    public void StartAnim()
-    {
-        // enable punch hitbox
-        hitbox.SetActive(true);
-    }
     public void EndAnim()
     {
         inputsDisabled = false;
         hitbox.SetActive(false);
+        pow.SetActive(false);
     }
 
     // when jump button is pressed on controller (gamepad south)
@@ -143,10 +122,14 @@ public class FightingCharacterScript : MonoBehaviour
     {
         if (!inputsDisabled)
         {
+            // enable punch animation
+            controllerAnim.SetTrigger("Punching");
+            // enable punch hitbox
+            hitbox.SetActive(true);
+            // enable pow hitbox
+            pow.SetActive(true);
             // disable other inputs
             inputsDisabled = true;
-            // enable punch animation
-            anim.SetTrigger("Punching");
         }
     }
 
@@ -154,9 +137,19 @@ public class FightingCharacterScript : MonoBehaviour
     {
         if (!inputsDisabled)
         {
-            anim.SetTrigger("Punching");
+            controllerAnim.SetTrigger("Punching");
         }
     }
+
+    public float movementSpeed = 16f; //player movement speed
+    public float jumpHeight = 1f; //player jump height
+    public float horizontal; //horizontal variable, used to check whether the player's input is positive or negative for movement
+    public float rotation; //rotation variable, for rotating the character model on the y axis
+    public bool hasDblJump = true;
+
+    [SerializeField] private Rigidbody2D rigidBody; //referencing the rigid body on my character model, in order to access it in c#
+    [SerializeField] private Transform groundCheck; //referencing the groundCheck emptyObject on my character model in order to access it in c#
+    [SerializeField] private LayerMask groundLayer; //referencing the ground Layer in the layers in order to access it in c#
 
     public bool OnGround()
     {
@@ -178,58 +171,43 @@ public class FightingCharacterScript : MonoBehaviour
             transform.rotation = Quaternion.Euler(0f, rotation, 0f); //transforms the character rotation to flip the model to the right, without using scale to invert the model
         }
 
-    }
+        //if (mesh == null) return;
+        //Vector3[] verts = mesh.vertices;
+        //for (int i = 0; i < verts.Length; i++)
+        //{
+        //    Vector3 c = verts[i];
+        //    if (flipX) c.x *= -1;
+        //    if (flipY) c.y *= -1;
+        //    if (flipZ) c.z *= -1;
+        //    verts[i] = c;
+        //}
 
-    private void OnTriggerEnter2D(Collider2D col)
-    {
-        if (col.gameObject.tag == "Attack")
-        {
-            HP = HP - 20;
-            if (HP > 0) // player is still alive
-            {
-                anim.SetTrigger("Recoiling");
-                inputsDisabled = true;
-                pow.SetActive(true);
-            }
-            else // player is dead
-            {
-                lastAttacker = col.transform.parent.gameObject; // set last attacker as the hitbox's parent
-
-                //lastAttacker.SetPoints(SP); // how do we make this work? unity doesn't know that the last attacker will have the same script
-
-                characterObj.SetActive(false); //deactivate (player is dead, do not kill game object)
-                healthBar.gameObject.SetActive(false);
-            }
-
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D col)
-    {
-        if (col.gameObject.tag == "Attack")
-        {
-            pow.SetActive(false);
-        }
-    }
-
-    public void SetPoints(int soulPts)
-    {
-        // if the player you killed has no SP, gain 1 SP
-        if (soulPts == 0)
-        {
-            SP++;
-        }
-        // if player has more than 0 SP, gain that many SP
-        else
-        {
-            SP += soulPts;
-        }
-        // add 100 BP per kill
-        BP += 100;
-    }
-
-    public void BecomeKaiju()
-    {
+        //mesh.vertices = verts;
+        //if (flipX ^ flipY ^ flipZ) FlipNormals();
 
     }
+
+    //private void FlipNormals()
+    //{
+    //    int[] tris = mesh.triangles;
+    //    for (int i = 0; i < tris.Length / 3; i++)
+    //    {
+    //        int a = tris[i * 3 + 0];
+    //        int b = tris[i * 3 + 1];
+    //        int c = tris[i * 3 + 2];
+    //        tris[i * 3 + 0] = c;
+    //        tris[i * 3 + 1] = b;
+    //        tris[i * 3 + 2] = a;
+    //    }
+    //    mesh.triangles = tris;
+    //}
+
+    //private void DblJump()
+    //{
+    //    if (OnGround() == true)
+    //    {
+    //        hasDblJump = true;
+    //    }
+    //}
 } 
+

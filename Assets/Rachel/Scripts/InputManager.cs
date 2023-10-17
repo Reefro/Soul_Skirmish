@@ -7,6 +7,7 @@ using UnityEngine.InputSystem.Users;
 
 public class InputManager : MonoBehaviour
 {
+
     public static InputManager current;
     ControlMaster controlMaster; //Our input script we created
 
