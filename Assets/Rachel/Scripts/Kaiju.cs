@@ -1,12 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
-public class FightingCharacterScript : MonoBehaviour
+public class Kaiju : MonoBehaviour
 {
-
     public int id;
 
     public GameObject characterObj;
@@ -16,13 +15,9 @@ public class FightingCharacterScript : MonoBehaviour
     public bool inputsDisabled;
 
     public float HP; // health points
-    public int BP; // battle points
-    public int SP; // soul points
     public float maxHP;
 
     public Image healthBar;
-
-    public GameObject lastAttacker; // stores last attacker, so we know who got the kill upon death
 
     public float movementSpeed; //player movement speed
     public float jumpHeight; //player jump height
@@ -42,17 +37,14 @@ public class FightingCharacterScript : MonoBehaviour
         inputsDisabled = false;
         horizontal = 0f;
         anim = characterObj.GetComponent<Animator>();
-        lastAttacker = null;
 
         InputManager.current.players[id].onJump += Jump;
         InputManager.current.players[id].onLightAttack += Light_Attack;
         InputManager.current.players[id].onHeavyAttack += Heavy_Attack;
 
         HP = 100; // health points
-        BP = 0; // battle points
-        SP = 0; // soul points
         maxHP = 100;
-}
+    }
 
     private void OnDisable()
     {
@@ -64,33 +56,11 @@ public class FightingCharacterScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // horizontal value when using keyboard input
-        //horizontal = Input.GetAxisRaw("Horizontal");
         if (inputsDisabled == false)
         {
             horizontal = InputManager.current.players[id].horizontal;
             rigidBody.velocity = new Vector3(horizontal * movementSpeed, rigidBody.velocity.y);
         }
-
-        //// jumping with keyboard input
-        //if (Input.GetButtonDown("Jump") && OnGround())
-        //{
-        //    rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpHeight);
-        //}
-        //// double jumping with keyboard input
-        //if (Input.GetButtonDown("Jump") && !OnGround() && hasDblJump)
-        //{
-        //    hasDblJump = false;
-        //    rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpHeight / 1.5f);
-        //}
-
-        // reset double jump when touching ground
-        if (OnGround())
-        {
-            hasDblJump = true;
-        }
-
-        FlipCharacter();
 
         // stop walking when no horizontal movement or off ground
         if (horizontal == 0 || !OnGround())
@@ -102,8 +72,8 @@ public class FightingCharacterScript : MonoBehaviour
         {
             anim.SetBool("Walking", true);
         }
-        
-        healthBar.fillAmount = (HP/maxHP) / 2f; // half full circle = full health bar
+
+        healthBar.fillAmount = (HP / maxHP) / 2f; // half full circle = full health bar
     }
 
     public void StartAnim()
@@ -163,44 +133,11 @@ public class FightingCharacterScript : MonoBehaviour
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer); //check the positon of groundCheck empty object on player character and if it meets the ground layer
     }
 
-    private void FlipCharacter()
-    {
-        //Vector3 position = transform.position;
-
-        if (horizontal < 0) //if the player is moving to the left, negative on the x axis
-        {
-            rotation = -90f; //set rotation to 180
-            transform.rotation = Quaternion.Euler(0f, rotation, 0f); //transforms the character rotation to flip the model to the left, without using scale to invert the model
-        }
-        else if (horizontal > 0) //if the player is moving to the right, positive on the x axis
-        {
-            rotation = 90f; //set rotation to 0
-            transform.rotation = Quaternion.Euler(0f, rotation, 0f); //transforms the character rotation to flip the model to the right, without using scale to invert the model
-        }
-
-    }
-
     private void OnTriggerEnter2D(Collider2D col)
     {
         if (col.gameObject.tag == "Attack")
         {
             HP = HP - 20;
-            if (HP > 0) // player is still alive
-            {
-                anim.SetTrigger("Recoiling");
-                inputsDisabled = true;
-                pow.SetActive(true);
-            }
-            else // player is dead
-            {
-                lastAttacker = col.transform.parent.gameObject; // set last attacker as the hitbox's parent
-
-                //lastAttacker.SetPoints(SP); // how do we make this work? unity doesn't know that the last attacker will have the same script
-
-                characterObj.SetActive(false); //deactivate (player is dead, do not kill game object)
-                healthBar.gameObject.SetActive(false);
-            }
-
         }
     }
 
@@ -211,25 +148,4 @@ public class FightingCharacterScript : MonoBehaviour
             pow.SetActive(false);
         }
     }
-
-    public void SetPoints(int soulPts)
-    {
-        // if the player you killed has no SP, gain 1 SP
-        if (soulPts == 0)
-        {
-            SP++;
-        }
-        // if player has more than 0 SP, gain that many SP
-        else
-        {
-            SP += soulPts;
-        }
-        // add 100 BP per kill
-        BP += 100;
-    }
-
-    public void BecomeKaiju()
-    {
-
-    }
-} 
+}
