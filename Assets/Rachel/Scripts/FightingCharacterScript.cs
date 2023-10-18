@@ -24,6 +24,7 @@ public class FightingCharacterScript : MonoBehaviour
 
     public GameObject lastAttacker; // stores last attacker, so we know who got the kill upon death
 
+    private float initSpeed;
     public float movementSpeed; //player movement speed
     public float jumpHeight; //player jump height
     public float horizontal; //horizontal variable, used to check whether the player's input is positive or negative for movement
@@ -37,6 +38,7 @@ public class FightingCharacterScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        initSpeed = 10;
         hitbox.SetActive(false);
         pow.SetActive(false);
         inputsDisabled = false;
@@ -117,6 +119,12 @@ public class FightingCharacterScript : MonoBehaviour
         hitbox.SetActive(false);
     }
 
+    public void EndRecoil()
+    {
+        inputsDisabled = false;
+        pow.SetActive(false);
+    }
+
     // when jump button is pressed on controller (gamepad south)
     private void Jump()
     {
@@ -180,11 +188,31 @@ public class FightingCharacterScript : MonoBehaviour
 
     }
 
+    public void TakeDamage(int damage, FightingCharacterScript otherPlayer) 
+    {
+        HP -= damage;
+        if (HP > 0) // player is still alive
+        {
+            anim.SetTrigger("Recoiling");
+            inputsDisabled = true;
+            pow.SetActive(true);
+        }
+        else // player is dead
+        {
+            otherPlayer.SetPoints(SP); // how do we make this work? unity doesn't know that the last attacker will have the same script
+
+            characterObj.SetActive(false); //deactivate (player is dead, do not kill game object)
+            healthBar.gameObject.SetActive(false);
+        }
+    }
+
+
     private void OnTriggerEnter2D(Collider2D col)
     {
+        /*
         if (col.gameObject.tag == "Attack")
         {
-            HP = HP - 20;
+            HP -= 20;
             if (HP > 0) // player is still alive
             {
                 anim.SetTrigger("Recoiling");
@@ -200,7 +228,12 @@ public class FightingCharacterScript : MonoBehaviour
                 characterObj.SetActive(false); //deactivate (player is dead, do not kill game object)
                 healthBar.gameObject.SetActive(false);
             }
+        }
+        */
 
+        if (col.gameObject.tag == "Water")
+        {
+            movementSpeed = movementSpeed / 2;
         }
     }
 
@@ -209,6 +242,10 @@ public class FightingCharacterScript : MonoBehaviour
         if (col.gameObject.tag == "Attack")
         {
             pow.SetActive(false);
+        }
+        if (col.gameObject.tag == "Water")
+        {
+            movementSpeed = initSpeed;
         }
     }
 
@@ -227,6 +264,11 @@ public class FightingCharacterScript : MonoBehaviour
         // add 100 BP per kill
         BP += 100;
     }
+
+    //public void SetMovespeed(float m)
+    //{
+    //    movementSpeed = m;
+    //}
 
     public void BecomeKaiju()
     {

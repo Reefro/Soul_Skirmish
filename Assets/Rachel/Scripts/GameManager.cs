@@ -17,20 +17,20 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        startTime = 10f;
+        startTime = 120f;
         timeRemaining = 3f;
         timerRunning = false;
         roundStart = false;
         StartRound();
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (timerRunning)
         {
-            if (timeRemaining > 0)
+            if (timeRemaining > 0f)
             {
-                timeRemaining -= Time.fixedDeltaTime;
+                timeRemaining -= Time.deltaTime;
                 // display corner time
                 if (!roundStart)
                 {
@@ -40,11 +40,6 @@ public class GameManager : MonoBehaviour
                 if (timeRemaining <= 3)
                 {
                     Countdown(timeRemaining);
-                }
-                // remove text from middle after 1 sec
-                if (timeRemaining == startTime - 1)
-                {
-                    announcer.text = string.Empty;
                 }
             }
             else // when timer gets to 0
@@ -56,6 +51,7 @@ public class GameManager : MonoBehaviour
                     roundStart = false;
                     timeRemaining = startTime;
                     timerRunning = true;
+                    Invoke("RemoveText", 1.0f);
                 }
                 else
                 {
@@ -67,6 +63,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void RemoveText()
+    {
+        announcer.text = "";
+    }
+
     private void StartRound()
     {
         roundStart = true;
@@ -75,13 +76,15 @@ public class GameManager : MonoBehaviour
 
     private void Countdown(float t)
     {
-        announcer.text = string.Format("{0:0}...", t);
+        //announcer.text = string.Format("{0:0}...", t);
+        announcer.text = Mathf.FloorToInt(t + 1).ToString();
     }
 
     private void DisplayTime(float t)
     {
         float min = Mathf.FloorToInt(t / 60);
         float sec = Mathf.FloorToInt(t % 60);
+        sec += 1;
         timerText.text = string.Format("{0:0}:{1:00}", min, sec);
         timerImage.fillAmount = t / startTime;
     }
