@@ -22,7 +22,7 @@ public class FightingCharacterScript : MonoBehaviour
 
     public Image healthBar;
 
-    public GameObject lastAttacker; // stores last attacker, so we know who got the kill upon death
+    public FightingCharacterScript lastAttacker; // stores last attacker, so we know who got the kill upon death
 
     private float initSpeed;
     public float movementSpeed; //player movement speed
@@ -191,18 +191,17 @@ public class FightingCharacterScript : MonoBehaviour
     public void TakeDamage(int damage, FightingCharacterScript otherPlayer) 
     {
         HP -= damage;
+        inputsDisabled = true;
         if (HP > 0) // player is still alive
         {
             anim.SetTrigger("Recoiling");
-            inputsDisabled = true;
             pow.SetActive(true);
+            lastAttacker = otherPlayer;
         }
         else // player is dead
         {
-            otherPlayer.SetPoints(SP); // how do we make this work? unity doesn't know that the last attacker will have the same script
-
-            characterObj.SetActive(false); //deactivate (player is dead, do not kill game object)
-            healthBar.gameObject.SetActive(false);
+            characterObj.GetComponent<Renderer>().enabled = false;
+            StartCoroutine(KillPlayer(otherPlayer));
         }
     }
 
@@ -235,6 +234,11 @@ public class FightingCharacterScript : MonoBehaviour
         {
             movementSpeed = movementSpeed / 2;
         }
+
+        if (col.gameObject.tag == "Boundary")
+        {
+            StartCoroutine(KillPlayer(lastAttacker));
+        }
     }
 
     private void OnTriggerExit2D(Collider2D col)
@@ -265,13 +269,24 @@ public class FightingCharacterScript : MonoBehaviour
         BP += 100;
     }
 
-    //public void SetMovespeed(float m)
-    //{
-    //    movementSpeed = m;
-    //}
-
     public void BecomeKaiju()
     {
 
+    }
+
+    // kill this player, give points to last attacker and respawn this player in centre stage
+    IEnumerator KillPlayer(FightingCharacterScript otherPlayer)
+    {
+        yield return new WaitForSeconds(3f);
+        // healthBar.gameObject.SetActive(false); // change this to a 3sec respawn timer visual
+        otherPlayer.SetPoints(SP);
+        // reset player health
+        HP = maxHP;
+        // move player to centre
+        characterObj.transform.position = new Vector3(0f, 8f, 0f);
+        // enable player
+        characterObj.GetComponent<Renderer>().enabled = true;
+        // allow inputs
+        inputsDisabled = false;
     }
 } 
