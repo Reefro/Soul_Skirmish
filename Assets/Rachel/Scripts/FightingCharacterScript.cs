@@ -10,7 +10,7 @@ public class FightingCharacterScript : MonoBehaviour
     public int id;
 
     public GameObject characterObj;
-    Animator anim;
+    public Animator anim;
     public GameObject hitbox;
     public GameObject pow;
     public bool inputsDisabled;
@@ -43,7 +43,10 @@ public class FightingCharacterScript : MonoBehaviour
         pow.SetActive(false);
         inputsDisabled = false;
         horizontal = 0f;
-        anim = characterObj.GetComponent<Animator>();
+        if (anim == null)
+        {
+            anim = characterObj.GetComponent<Animator>();
+        }
         lastAttacker = null;
 
         InputManager.current.players[id].onJump += Jump;

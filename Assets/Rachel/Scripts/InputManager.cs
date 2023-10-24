@@ -37,12 +37,13 @@ public class InputManager : MonoBehaviour
     //this is the function
     private void JoinPerformed(InputAction.CallbackContext ctx)
     {
+        // don't let more than 4 players join
         if(players.Count >= 4)
         {
             return;
         }
 
-        //This for loop is checking the player aready exists
+        // check if the player aready exists
         foreach (PlayerControl player in players)
         {
             if(player.inputDevice == ctx.control.device)
@@ -52,10 +53,12 @@ public class InputManager : MonoBehaviour
             }
         }
 
+        // add 1 to player list
         if(onStartPressed != null)
         {
             onStartPressed.Invoke(players.Count);
         }
+
         //Player doesn't exist so we need to create them
         PlayerControl newPlayer = new PlayerControl();
         newPlayer.SetDevice(ctx.control.device, players.Count); //Set up all the inputs in this class, look down below
@@ -66,7 +69,7 @@ public class InputManager : MonoBehaviour
     }
 }
 
-//This is are custom class for each player
+//This is our custom class for each player
 [System.Serializable]
 public class PlayerControl
 {
