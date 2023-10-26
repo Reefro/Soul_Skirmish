@@ -3,7 +3,37 @@ guid: 18d8ea0364cf3bf4081dcfbee57094d6
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Accessories_Materail
+    second: {fileID: 2100000, guid: 526ccdb42ea4f574fafccc8d5fc858f6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Body_Materail
+    second: {fileID: 2100000, guid: 650f4cd8a7342664f841030aff014ed0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Coat_Material
+    second: {fileID: 2100000, guid: 28d33736be62c874f8ff9519ae74336d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Head_Materail
+    second: {fileID: 2100000, guid: 090d7d1e7409d734f9874732e9e14a5d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Mask_Material
+    second: {fileID: 2100000, guid: 6ee2fe3c21dd2f147afa594ac0b612ff, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Vines_Materail
+    second: {fileID: 2100000, guid: ed40ae4e7d3535c468334ea822c5fdd5, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

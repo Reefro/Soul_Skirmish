@@ -18,6 +18,9 @@ public class InputManager : MonoBehaviour
 
     private bool startPressed;
 
+    GameObject menuButtons;
+   [SerializeField] private bool inMainMenu;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -36,9 +39,9 @@ public class InputManager : MonoBehaviour
         }
 
         startPressed = false;
+        inMainMenu = SceneManager.GetActiveScene().name == "Main_Menu";
     }
 
-    // 
     private void JoinPerformed(InputAction.CallbackContext ctx)
     {
         // don't let more than 3 players join
