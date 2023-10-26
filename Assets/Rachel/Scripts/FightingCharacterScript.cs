@@ -280,13 +280,14 @@ public class FightingCharacterScript : MonoBehaviour
     // kill this player, give points to last attacker and respawn this player in centre stage
     IEnumerator KillPlayer(FightingCharacterScript otherPlayer)
     {
-        yield return new WaitForSeconds(3f);
         // healthBar.gameObject.SetActive(false); // change this to a 3sec respawn timer visual
         otherPlayer.SetPoints(SP);
-        // reset player health
-        HP = maxHP;
         // move player to centre
         characterObj.transform.position = new Vector3(0f, 8f, 0f);
+        // turn off gravity
+        yield return new WaitForSeconds(3f);
+        // reset player health
+        HP = maxHP;
         // enable player
         characterObj.GetComponent<Renderer>().enabled = true;
         // allow inputs

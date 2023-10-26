@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
+using UnityEngine.SceneManagement;
 
 public class InputManager : MonoBehaviour
 {
@@ -15,10 +16,11 @@ public class InputManager : MonoBehaviour
     public delegate void OnStartPressed(int id);
     public OnStartPressed onStartPressed;
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    private bool startPressed;
 
+    // Start is called before the first frame update
+    void Awake()
+    {
         if (current == null)
         {
             current = this;
@@ -32,13 +34,15 @@ public class InputManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        startPressed = false;
     }
 
-    //this is the function
+    // 
     private void JoinPerformed(InputAction.CallbackContext ctx)
     {
-        // don't let more than 4 players join
-        if(players.Count >= 4)
+        // don't let more than 3 players join
+        if(players.Count >= 3)
         {
             return;
         }
@@ -66,16 +70,27 @@ public class InputManager : MonoBehaviour
         players.Add(newPlayer); //Add the new player to our list
         //Let the gamemanager a new player has joined
         //GameManager.current.PlayerJoined(GetButtonPrompts(ctx.control.device.displayName), newPlayer.playerID);
+
+        // hide "press start" note & show buttons upon joining if in main menu
+        if (SceneManager.GetActiveScene().name == "Main_Menu" && !startPressed)
+        {
+            GameObject pressStart = GameObject.Find("Press_Start");
+            pressStart.SetActive(false);
+            GameObject menuButtons = GameObject.Find("Menu_UI");
+            menuButtons.SetActive(true);
+        }
     }
 }
 
 //This is our custom class for each player
+//This is where we do all the inputs for individual players
+//Ignore above stuff
 [System.Serializable]
 public class PlayerControl
 {
     public InputDevice inputDevice; //This is the device they are using
     public int playerID; //The player index
-    ControlMaster controlMaster; //Controls we created, but are assigning it to only them
+    public ControlMaster controlMaster; //Controls we created, but are assigning it to only them
     InputUser inputUser; //Assigning them a input user
 
     public delegate void OnJump();
