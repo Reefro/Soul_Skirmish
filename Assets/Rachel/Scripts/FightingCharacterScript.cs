@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using TMPro;
 
 public class FightingCharacterScript : MonoBehaviour
 {
-
     public int id;
 
     public GameObject characterObj;
@@ -20,7 +20,8 @@ public class FightingCharacterScript : MonoBehaviour
     public int SP; // soul points
     public float maxHP;
 
-    public Image healthBar;
+    private GameObject healthBar;
+    private GameObject SPText;
 
     public FightingCharacterScript lastAttacker; // stores last attacker, so we know who got the kill upon death
 
@@ -34,6 +35,13 @@ public class FightingCharacterScript : MonoBehaviour
     [SerializeField] private Rigidbody2D rigidBody; //referencing the rigid body on my character model, in order to access it in c#
     [SerializeField] private Transform groundCheck; //referencing the groundCheck emptyObject on my character model in order to access it in c#
     [SerializeField] private LayerMask groundLayer; //referencing the ground Layer in the layers in order to access it in c#
+
+    public Kaiju kaiju;
+
+    private void Awake()
+    {
+        SetStats();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -57,13 +65,18 @@ public class FightingCharacterScript : MonoBehaviour
         BP = 0; // battle points
         SP = 0; // soul points
         maxHP = 100;
-}
+    }
 
     private void OnDisable()
     {
         InputManager.current.players[id].onJump -= Jump;
         InputManager.current.players[id].onLightAttack -= Light_Attack;
         InputManager.current.players[id].onHeavyAttack -= Heavy_Attack;
+    }
+
+    public void UpdateBP()
+    {
+        PlayerManager.current.characterBP[id] = BP;
     }
 
     // Update is called once per frame
@@ -107,8 +120,9 @@ public class FightingCharacterScript : MonoBehaviour
         {
             anim.SetBool("Walking", true);
         }
-        
-        healthBar.fillAmount = (HP/maxHP) / 2f; // half full circle = full health bar
+
+        healthBar.GetComponent<Image>().fillAmount = (HP/maxHP) / 2f; // half full circle = full health bar
+        SPText.GetComponent<TextMeshProUGUI>().text = "SP:\n" + SP;
     }
 
     public void StartAnim()
@@ -157,7 +171,7 @@ public class FightingCharacterScript : MonoBehaviour
             // disable other inputs
             inputsDisabled = true;
             // enable punch animation
-            anim.SetTrigger("Punching");
+            anim.SetTrigger("Light");
         }
     }
 
@@ -165,7 +179,9 @@ public class FightingCharacterScript : MonoBehaviour
     {
         if (!inputsDisabled)
         {
-            anim.SetTrigger("Punching");
+            // disable other inputs
+            inputsDisabled = true;
+            anim.SetTrigger("Heavy");
         }
     }
 
@@ -180,12 +196,12 @@ public class FightingCharacterScript : MonoBehaviour
 
         if (horizontal < 0) //if the player is moving to the left, negative on the x axis
         {
-            rotation = -90f; //set rotation to 180
+            rotation = 180f; //set rotation to 180
             transform.rotation = Quaternion.Euler(0f, rotation, 0f); //transforms the character rotation to flip the model to the left, without using scale to invert the model
         }
         else if (horizontal > 0) //if the player is moving to the right, positive on the x axis
         {
-            rotation = 90f; //set rotation to 0
+            rotation = 0f; //set rotation to 0
             transform.rotation = Quaternion.Euler(0f, rotation, 0f); //transforms the character rotation to flip the model to the right, without using scale to invert the model
         }
 
@@ -208,6 +224,24 @@ public class FightingCharacterScript : MonoBehaviour
         }
     }
 
+    public void SetStats()
+    {
+        if (id == 0)
+        {
+            healthBar = GameObject.Find("P1_Healthbar");
+            SPText = GameObject.Find("P1_SP");
+        }
+        else if (id == 1)
+        {
+            healthBar = GameObject.Find("P2_Healthbar");
+            SPText = GameObject.Find("P2_SP");
+        }
+        else if (id == 2)
+        {
+            healthBar = GameObject.Find("P3_Healthbar");
+            SPText = GameObject.Find("P3_SP");
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D col)
     {
@@ -274,7 +308,9 @@ public class FightingCharacterScript : MonoBehaviour
 
     public void BecomeKaiju()
     {
-
+        kaiju.SetPlayer(id);
+        kaiju.gameObject.SetActive(true);
+        gameObject.SetActive(false);
     }
 
     // kill this player, give points to last attacker and respawn this player in centre stage

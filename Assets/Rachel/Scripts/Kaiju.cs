@@ -30,8 +30,10 @@ public class Kaiju : MonoBehaviour
     [SerializeField] private LayerMask groundLayer; //referencing the ground Layer in the layers in order to access it in c#
 
     // Start is called before the first frame update
-    void Start()
+    public void SetPlayer(int playerID)
     {
+        id = playerID;
+
         hitbox.SetActive(false);
         pow.SetActive(false);
         inputsDisabled = false;

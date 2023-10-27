@@ -6,6 +6,24 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/2.Character_Select.unity
+    guid: b72d18f26d459d643b9578765125232c
+  - enabled: 1
+    path: Assets/Scenes/Balance_Level.unity
+    guid: 08dc0c09fc2a23c418860e897eff6959
+  - enabled: 1
+    path: Assets/Scenes/Cave_Level.unity
+    guid: d5cc6f68a11140f499a2d5b02f7eafd3
+  - enabled: 1
+    path: Assets/Scenes/Palace_Level.unity
+    guid: 8de61ec415ce15740aa3fcc8581a900c
+  - enabled: 1
+    path: Assets/Scenes/Swamp_Level.unity
+    guid: d8634f55a6c87e64eba355afc05c0846
+  - enabled: 1
+    path: Assets/Scenes/Basic_Stage.unity
+    guid: 9620121dea4dbc040850933ec73a7a14
+  - enabled: 1
+    path: Assets/Scenes/Victory.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects: {}

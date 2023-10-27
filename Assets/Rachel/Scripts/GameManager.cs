@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
                 // reset timer to 2min upon starting round, and set announcer text
                 if (roundStart)
                 {
-                    announcer.text = string.Format("FIGHT!");
+                    announcer.text = "FIGHT!";
                     roundStart = false;
                     timeRemaining = startTime;
                     timerRunning = true;
@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
                 {
                     timeRemaining = 0;
                     timerRunning = false;
-                    announcer.text = string.Format("END!");
+                    announcer.text = "END!";
                 }
             }
         }

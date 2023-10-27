@@ -1,42 +1,45 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerSelect : MonoBehaviour
 {
-    public int playerIndex;
-    bool playerJoined;
-
-    public List<GameObject> characterList = new List<GameObject>();
-    int characterSelectIndex;
+    public List<string> nextScene = new List<string>();
 
     private void Start()
     {
-        StartCoroutine(CheckForInput());
+        StartCoroutine(CheckForPlayers());
     }
 
-    IEnumerator CheckForInput()
+    IEnumerator CheckForPlayers()
     {
-        while (InputManager.current.players.Count -1 >= playerIndex)
+        bool waitingforplayers = true;
+        List<int> playerList = PlayerManager.current.characterChoice;
+        while (waitingforplayers)
         {
-            //Player hasn't joined yet
+            bool playersReady = true;
+            foreach (int player in playerList)
+            {
+                if (player == -1)
+                {
+                    playersReady = false;
+                }
+            }
+            if (playersReady)
+            {
+                waitingforplayers = false;
+            }
             yield return null;
         }
+
+        StartGame();
     }
 
-    void AssignInputs()
+    [ContextMenu("StartGame")]
+    void StartGame()
     {
-
-    }
-
-
-    public void Left()
-    {
-
-    }
-
-   public void Right()
-    {
-
+        int randomArena = Random.Range(0, nextScene.Count);
+        SceneManager.LoadScene(nextScene[randomArena]);
     }
 }

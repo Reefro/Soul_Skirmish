@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager current;
-    public List<int> characterChoice = new List<int>() { 0, 0, 0 };
+    public List<int> characterChoice = new List<int>() { -1, -1, -1 };
+    public List<int> characterBP = new List<int>() { 0, 0, 0 };
     //PlayerManager.current.characterChoice[IndexOfPlayer] to get the characters selection
 
     private void Awake()

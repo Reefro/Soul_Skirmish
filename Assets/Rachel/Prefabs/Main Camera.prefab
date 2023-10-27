@@ -135,7 +135,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
   offset: {x: 0, y: 15, z: -50}
   smoothTime: 0.5
   minimumZoom: 60

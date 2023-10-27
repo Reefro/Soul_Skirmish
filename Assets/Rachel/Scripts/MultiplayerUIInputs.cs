@@ -20,8 +20,17 @@ namespace MasayaScripts.InputSystem
 
         private void Start()
         {
-            PlayerJoined();
+            StartCoroutine(CheckForPlayer());
             characterSelected = false;
+        }
+
+        IEnumerator CheckForPlayer()
+        {
+            while(InputManager.current.players.Count -1 < playerIndex)
+            {
+                yield return null;
+            }
+            PlayerJoined();
         }
 
         public void PlayerJoined()

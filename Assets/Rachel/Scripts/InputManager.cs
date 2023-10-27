@@ -18,8 +18,10 @@ public class InputManager : MonoBehaviour
 
     private bool startPressed;
 
+    [SerializeField] private bool inMainMenu;
+
+    GameObject pressStart;
     GameObject menuButtons;
-   [SerializeField] private bool inMainMenu;
 
     // Start is called before the first frame update
     void Awake()
@@ -39,7 +41,14 @@ public class InputManager : MonoBehaviour
         }
 
         startPressed = false;
-        inMainMenu = SceneManager.GetActiveScene().name == "Main_Menu";
+        inMainMenu = SceneManager.GetActiveScene().name == "1.Main_Menu";
+
+        if (inMainMenu)
+        {
+            pressStart = GameObject.Find("Press_Start");
+            menuButtons = GameObject.Find("Menu_UI");
+            menuButtons.SetActive(false);
+        }
     }
 
     private void JoinPerformed(InputAction.CallbackContext ctx)
@@ -75,11 +84,9 @@ public class InputManager : MonoBehaviour
         //GameManager.current.PlayerJoined(GetButtonPrompts(ctx.control.device.displayName), newPlayer.playerID);
 
         // hide "press start" note & show buttons upon joining if in main menu
-        if (SceneManager.GetActiveScene().name == "Main_Menu" && !startPressed)
+        if (inMainMenu && !startPressed)
         {
-            GameObject pressStart = GameObject.Find("Press_Start");
             pressStart.SetActive(false);
-            GameObject menuButtons = GameObject.Find("Menu_UI");
             menuButtons.SetActive(true);
         }
     }
